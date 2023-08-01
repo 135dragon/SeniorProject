@@ -4,10 +4,8 @@
  */
 package aasim.maps;
 
-import aasim.entities.Bear;
-import aasim.entities.Deer;
+import aasim.entities.Miasma;
 import aasim.entities.Sprite;
-import aasim.entities.Wolf;
 import aasim.interactables.Interactable;
 import aasim.utilities.RectangleVector;
 import java.io.FileInputStream;
@@ -20,21 +18,23 @@ import javafx.scene.image.Image;
  *
  * @author 14048
  */
-public class Level2Cave extends Map {
+public class Level15Grave extends Map {
 
-    private String fileLocation = "resources/maps/Level2/Level2.jpg";
+    private String fileLocation = "resources/maps/Level15/Level15.jpg";
     private Map nextLevel = null;
 
-    public Level2Cave(int x, int y) {
+    public Level15Grave(int x, int y) {
         super(x, y);
         setX(x);
         setY(y);
+        spawnLocationX = 77;
+        spawnLocationY = 1426;
         this.wallCollisions.clear();
         this.interactables.clear();
         this.spawns.clear();
-        setAsset();
         setSpawns();
-        setCollisions();
+        setAsset();
+//        setCollisions();
         setInteractions();
     }
 
@@ -49,58 +49,43 @@ public class Level2Cave extends Map {
     }
 
     private void setCollisions() {
-        //RectangleVector is (x,y,width,height)
-        RectangleVector topWall = new RectangleVector(0, 0, 2048, 99);
-        RectangleVector bottomWall = new RectangleVector(0, 1452, 2048, 76);
-        RectangleVector leftWall = new RectangleVector(0, 0, 99, 1536);
-        RectangleVector rightWall = new RectangleVector(1950, 0, 91, 1536);
+        //RectangleVector2d is (x,y,width,height)
+//        RectangleVector a = new RectangleVector(0, 0, 124, 1536);
 //        RectangleVector b = new RectangleVector(0, 0, 2048, 142);
 //        RectangleVector c = new RectangleVector(545, 133, 301, 545);
 //        RectangleVector d = new RectangleVector(549, 999, 309, 473);
-        RectangleVector e = new RectangleVector(403, 338, 173, 839);
-        RectangleVector f = new RectangleVector(869, 338, 173, 839);
-        RectangleVector g = new RectangleVector(1309, 338, 173, 839);
-        RectangleVector h = new RectangleVector(405, 330, 1053, 141);
+//        RectangleVector e = new RectangleVector(1200, 367, 251, 891);
+//        RectangleVector f = new RectangleVector(1721, 0, 335, 1536);
+//        RectangleVector g = new RectangleVector(0, 1469, 2048, 93);
 //
-        wallCollisions.add(topWall);
-        wallCollisions.add(bottomWall);
-        wallCollisions.add(leftWall);
-        wallCollisions.add(rightWall);
-        wallCollisions.add(e);
-        wallCollisions.add(f);
-        wallCollisions.add(g);
-        wallCollisions.add(h);
+//        wallCollisions.add(a);
+//        wallCollisions.add(b);
+//        wallCollisions.add(c);
+//        wallCollisions.add(d);
 //        wallCollisions.add(e);
 //        wallCollisions.add(f);
 //        wallCollisions.add(g);    
     }
 
     private void setSpawns() {
-        for (int i = 0; i < 4; i++) {
-            Wolf x = new Wolf(1100, 506 + (100 * i), 75, 100);
-            spawns.add(x);
+        for (int i = 0; i < 100; i++) {
+            int x = Sprite.rand.nextInt(1351) + 350;
+            int y = Sprite.rand.nextInt(1177) + 200;
+            Miasma random = new Miasma(x, y, 75, 100);
+            spawns.add(random);
         }
-        Deer a = new Deer(223, 158, 75, 100);
-        Deer b = new Deer(1700, 220, 75, 100);
-        Deer c = new Deer(685, 854, 75, 100);
-        Deer d = new Deer(1751, 1294, 75, 100);
-
-        spawns.add(a);
-        spawns.add(b);
-        spawns.add(c);
-        spawns.add(d);
     }
 
     //This will be overridden in each level
     //Set interactables such as 'next level' and 'previous level' checks...or fire
     private void setInteractions() {
-        Interactable stageChange = new Interactable(1215, 515, 62, 62);
+        Interactable stageChange = new Interactable(1943, 1406, 72, 77);
         interactables.add(stageChange);
     }
 
     @Override
     public void setNextMap() {
-        nextMap = new Level3Cave(0, 0);
+        nextMap = new Ending(0, 0);
     }
 
 }

@@ -17,7 +17,6 @@ public class Fire extends Interactable {
         super(x1, y1, width, height);
     }
 
-    @Override
     public void onCollision(Player player) {
         System.out.println("boooo");
     }

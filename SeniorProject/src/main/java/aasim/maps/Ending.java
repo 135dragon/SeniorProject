@@ -4,11 +4,10 @@
  */
 package aasim.maps;
 
-import aasim.entities.Deer;
 import aasim.entities.Player;
 import aasim.interactables.Interactable;
 import aasim.entities.Sprite;
-import aasim.entities.Wolf;
+import aasim.interactables.Fire;
 import aasim.utilities.RectangleVector;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -18,29 +17,28 @@ import java.util.logging.Logger;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 
 /**
  *
  * @author 14048
  */
-public class Map extends ImageView {
+public class Ending extends Map {
 
-    private String fileLocation = "resources/maps/Level0/level0.png";
-    Image img;
-    public double spawnLocationX = 412, spawnLocationY = 1371; //Starting spawn of player
-    public ArrayList<RectangleVector> wallCollisions = new ArrayList<>();
-    public ArrayList<Interactable> interactables = new ArrayList<>();
-    public ArrayList<Sprite> spawns = new ArrayList<>();
-    public static boolean loadNextMap = false;
-    public Map nextMap;
+    private String fileLocation = "resources/maps/Ending/Ending.jpg";
+    private Map nextLevel;
 
-    public Map(double x, double y) {
+    public Ending(double x, double y) {
+        super(x, y);
         setX(x);
         setY(y);
+        spawnLocationY = spawnLocationY - 100;
+        this.wallCollisions.clear();
+        this.interactables.clear();
+        this.spawns.clear();
         setAsset();
         setCollisions();
         setInteractions();
-        System.out.println(this);
     }
 
     private void setAsset() {
@@ -80,29 +78,17 @@ public class Map extends ImageView {
 
     //This will be overridden in each level
     //All of the spawns, whether enemy, passive, or interactables.
+    private void setSpawns() {
+
+    }
+
     //Set interactables such as 'next level' and 'previous level' checks...or fire
     private void setInteractions() {
         Interactable stageChange = new Interactable(959, 629, 221, 139);
         interactables.add(stageChange);
     }
 
-    //Getters and setters
-    public ArrayList<RectangleVector> getWallCollisions() {
-        return wallCollisions;
-    }
-
-    public void setWallCollisions(ArrayList<RectangleVector> wallCollisions) {
-        this.wallCollisions = wallCollisions;
-    }
-
-    public ArrayList<Interactable> getInteractables() {
-        return interactables;
-    }
-
-    public void setInteractables(ArrayList<Interactable> interactables) {
-        this.interactables = interactables;
-    }
-
+    @Override
     public void setNextMap() {
         nextMap = new Level1Cave(0, 0);
     }

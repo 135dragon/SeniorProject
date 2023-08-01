@@ -4,7 +4,19 @@
  */
 package aasim.maps;
 
+import aasim.entities.Bear;
+import aasim.entities.Bee;
+import aasim.entities.Deer;
+import aasim.entities.Eel;
+import aasim.entities.Ghost;
+import aasim.entities.Goblin;
+import aasim.entities.Miasma;
+import aasim.entities.Piranha;
+import aasim.entities.Skeleton;
 import aasim.entities.Sprite;
+import aasim.entities.Statue;
+import aasim.entities.Turtle;
+import aasim.entities.Wolf;
 import aasim.interactables.Fire;
 import aasim.interactables.Interactable;
 import aasim.utilities.RectangleVector;
@@ -28,9 +40,12 @@ public class Level1Cave extends Map {
         super(x, y);
         setX(x);
         setY(y);
+        spawnLocationY = spawnLocationY - 100;
         this.wallCollisions.clear();
         this.interactables.clear();
         this.spawns.clear();
+
+        setSpawns();
         setAsset();
         setCollisions();
         setInteractions();
@@ -74,19 +89,28 @@ public class Level1Cave extends Map {
     //This will be overridden in each level
     //All of the spawns, whether enemy, passive, or interactables.
     private void setSpawns() {
-
+        for (int i = 0; i < 1; i++) {
+            Deer x = new Deer(608, 823, 75, 100);
+            Deer y = new Deer(823, 932, 75, 100);
+            Deer z = new Deer(267, 236, 75, 100);
+            Deer a = new Deer(971, 216, 75, 100);
+            spawns.add(x);
+            spawns.add(y);
+            spawns.add(z);
+            spawns.add(a);
+        }
     }
 
     //This will be overridden in each level
     //Set interactables such as 'next level' and 'previous level' checks...or fire
     private void setInteractions() {
-//        Interactable stageChange = new Interactable(959, 629, 221, 139);
-//        interactables.add(stageChange);
+        Interactable stageChange = new Interactable(1509, 206, 136, 129);
+        interactables.add(stageChange);
     }
 
     @Override
     public void setNextMap() {
-        nextMap = new Map(0, 0);
+        nextMap = new Level2Cave(0, 0);
     }
 
 }

@@ -4,18 +4,14 @@
  */
 package aasim.level;
 
-import aasim.utilities.Vector;
-import aasim.entities.Enemy;
-import aasim.interactables.Interactable;
 import aasim.maps.Map;
 import aasim.entities.Player;
+import aasim.entities.Sprite;
 import aasim.utilities.RectangleVector;
+import java.io.File;
 import javafx.animation.AnimationTimer;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
@@ -25,9 +21,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 /**
  *
@@ -41,21 +37,33 @@ public class Level extends Scene {
     StackPane sp = new StackPane(); //Layering Mechanism
     Pane root = new Pane(); // The Actual Level
     GridPane escapeMenu = new GridPane(); // Escape Menu 
-
+    GridPane inventoryMenu = new GridPane();
     //Player
-    Player player = new Player(1024 / 2, 1024 / 2);
+    public static Player player;
     //Player Controls - w  a  s  d
     boolean isEscapeMenu = false;
     Map currentMap;
+    public static MediaPlayer combatMusic;
+    public static MediaPlayer backgroundMusic;
 
     public Level() {
         super(new Pane());
         // what does this do???       
         //sp.setEventDispatcher(root.eventDispatcherProperty().get());
         currentMap = new Map(0, 0);
+        Sprite.currentMap = currentMap;
+        player = new Player(1024 / 2, 1024 / 2);
         player.setX(currentMap.spawnLocationX);
         player.setY(currentMap.spawnLocationY);
+        Pane playerUI = new Pane();
+        playerUI.getChildren().addAll(player.healthBar, player.healthDisplay, player.staminaBar, player.staminaDisplay, player.sanityBar, player.sanityDisplay);
+        playerUI.setTranslateX(0);
+        playerUI.setTranslateY(0);
+
         root.getChildren().addAll(currentMap, player);
+        for (Sprite sprite : currentMap.spawns) {
+            root.getChildren().add(sprite);
+        }
         player.resetCamera();
 
         //Creates the escape menu
@@ -77,11 +85,28 @@ public class Level extends Scene {
         //Set a default black background
         Pane blackBackground = new Pane();
         blackBackground.setStyle("-fx-background-color: black;");
-
+        playerUI.setPickOnBounds(false);
         //Add everything to SP
-        sp.getChildren().addAll(blackBackground, root, escapeMenu);
-
+        sp.getChildren().addAll(blackBackground, root, playerUI, escapeMenu);
         this.setRoot(sp);
+        //
+
+        String path = "./resources/music/combat.mp3";
+        File initialFile = new File(path);
+        path = (initialFile.toURI().toString());
+//        
+        Media hit = new Media(path);
+        combatMusic = new MediaPlayer(hit);
+        combatMusic.setVolume(0.1);
+
+        path = "./resources/music/nocturn.mp3";
+        initialFile = new File(path);
+        path = (initialFile.toURI().toString());
+        hit = new Media(path);
+        backgroundMusic = new MediaPlayer(hit);
+        backgroundMusic.play();
+        backgroundMusic.setVolume(1);
+
     }
 
     private void setListeners() {
@@ -104,7 +129,6 @@ public class Level extends Scene {
                     isEscapeMenu();
                     break;
                 case SPACE:
-
                     player.resetCamera();
                     break;
             }
@@ -142,17 +166,12 @@ public class Level extends Scene {
 //
 //        });
 
-//        this.setOnMouseClicked(eh -> {
-//            Event.fireEvent(root, new MouseEvent(MouseEvent.MOUSE_CLICKED, 0,
-//                    0, 0, 0, MouseButton.PRIMARY, 1, false, false, false, false,
-//                    false, false, false, false, false, false, null)
-//            );
-//        });
-//        root.setOnMouseClicked(e -> {
-//            double x = e.getX();
-//            double y = e.getY();
-//            player.attack(x, y);
-//        });
+        root.setOnMouseClicked(e -> {
+            double x = e.getX();
+            double y = e.getY();
+            player.attack(x, y, 100);
+        });
+
     }
 
     //Variables for the update function
@@ -161,8 +180,17 @@ public class Level extends Scene {
     RectangleVector collision;
 
     private boolean update() {
-        counter += .012;
-        checkForCollision();
+//        counter += .012;
+        //Game Over
+        if (player.isDead()) {
+            for (Sprite x : Sprite.currentMap.spawns) {
+                x.timer.stop();
+            }
+        }
+
+        if (Map.loadNextMap) {
+            nextMap();
+        }
         //Only runs every 5 seconds
 //        if (counter > 5) {
         // This code allows for the new 'map' to load at the player location and places the player on top of it.
@@ -172,48 +200,6 @@ public class Level extends Scene {
 //            counter = 0;
 //        }
         return false;
-    }
-
-    //Probably should move this to the player class or sprite class.
-    private void checkForCollision() {
-        //Checks to see if Player's currently intersects any of the current map's walls.
-        for (RectangleVector bounds : currentMap.getWallCollisions()) {
-            if (player.intersects(bounds.rect.getBoundsInLocal())) {
-
-                if (bounds.topLine.intersects(player.getBoundsInLocal())) {
-                    player.setyVelocity(player.getyVelocity() * -1.1);
-                    player.downDisabled = true;
-                }
-                if (bounds.bottomLine.intersects(player.getBoundsInLocal())) {
-                    player.setyVelocity(player.getyVelocity() * -1.1);
-                    player.upDisabled = true;
-                }
-                if (player.intersects(bounds.leftLine.getBoundsInParent())) {
-                    player.setxVelocity(player.getxVelocity() * -1.1);
-                    player.rightDisabled = true;
-
-                }
-                if (player.intersects(bounds.rightLine.getBoundsInParent())) {
-                    player.setxVelocity(player.getxVelocity() * -1.1);
-                    player.leftDisabled = true;
-
-                }
-
-            }
-        }
-        //Should not be intersecting any walls.
-        //Check to see if intersecting 'interactables'
-        for (Interactable bounds : currentMap.getInteractables()) {
-            if (player.intersects(bounds.rect.getBoundsInLocal())) {
-                //Player is colliding with the interactable.
-                bounds.onCollision(player);
-            }
-        }
-
-        //If load next map == true
-        if (Map.loadNextMap) {
-            nextMap();
-        }
     }
 
     private void createEscapeMenu() {
@@ -242,10 +228,8 @@ public class Level extends Scene {
 
         if (isEscapeMenu) {
             escapeMenu.setVisible(true);
-            System.out.println("yes");
         } else {
             escapeMenu.setVisible(false);
-            System.out.println("no");
         }
 
     }
@@ -254,12 +238,36 @@ public class Level extends Scene {
         Map.loadNextMap = false;
         //
 
+        //
+        //
+//        for (Object a : root.getChildren()) {
+//            System.out.println("This is in root: " + a);
+//        }
         root.getChildren().clear();
+
+//        for (Object a : root.getChildren()) {
+//            System.out.println("This is in root after clearing: " + a);
+//        }
+//
+        for (Sprite a : currentMap.spawns) {
+            System.out.println(a + "'s timer just stopped");
+            a.timer.stop();
+        }
+
+        currentMap.spawns.clear();
+
+        System.gc();
+        //
         currentMap.setNextMap();
         currentMap = currentMap.nextMap;
+
         root.getChildren().addAll(currentMap, player);
+        for (Sprite sprite : currentMap.spawns) {
+            root.getChildren().add(sprite);
+        }
         player.setX(currentMap.spawnLocationX);
         player.setY(currentMap.spawnLocationY);
         player.resetCamera();
+        Sprite.currentMap = currentMap;
     }
 }

@@ -4,25 +4,34 @@
  */
 package aasim.interactables;
 
-import aasim.entities.Player;
+import aasim.entities.Sprite;
 import aasim.maps.Map;
+import javafx.geometry.Bounds;
+import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 
 /**
  *
  * @author 14048
  */
-public class Interactable {
-
-    public Rectangle rect;
-
+public class Interactable extends Pane {
+    
+    public Bounds bounds;
+    
     public Interactable(double x1, double y1, double width, double height) {
-        rect = new Rectangle(x1, y1, width, height);
+        Rectangle rect = new Rectangle(x1, y1, width, height);
+        bounds = rect.getBoundsInLocal();
+    }
+    
+    public Interactable() {
+        
     }
 
     //Code to run on collision
     //Default onCollision will be to load the next level.
-    public void onCollision(Player player) {
-        Map.loadNextMap = true;
+    public void onCollision(Sprite sprite) {
+        if (sprite.getName().equals("player")) {
+            Map.loadNextMap = true;
+        }
     }
 }
